@@ -1,28 +1,42 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
+
+const prisma = new PrismaClient();
 
 export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user) {
+    // Token kontrolü
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { message: 'Oturum açmanız gerekiyor' },
+        { error: 'Oturum açmanız gerekiyor' },
         { status: 401 }
       );
     }
 
-    const followerId = session.user.id;
+    const token = authHeader.split(' ')[1];
+    let decodedToken;
+    
+    try {
+      decodedToken = jwt.verify(token, process.env.JWT_SECRET || '') as { userId: string };
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Geçersiz token' },
+        { status: 401 }
+      );
+    }
+
+    const followerId = decodedToken.userId;
     const followingId = params.id;
 
     // Kendini takip etmeyi engelle
     if (followerId === followingId) {
       return NextResponse.json(
-        { message: 'Kendinizi takip edemezsiniz' },
+        { error: 'Kendinizi takip edemezsiniz' },
         { status: 400 }
       );
     }
@@ -63,8 +77,10 @@ export async function POST(
   } catch (error) {
     console.error('Takip işlemi sırasında hata:', error);
     return NextResponse.json(
-      { message: 'Sunucu hatası' },
+      { error: 'Sunucu hatası' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 } 
