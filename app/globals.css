@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Çark ve buton stilleri */
+.wheel-container {
+  position: relative;
+  width: 384px;
+  height: 384px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  height: auto;
+}
+
+.spin-button {
+  position: absolute;
+  left: 49%;
+  top: 49%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  background: #9333ea;
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spin-button:hover {
+  background: #7e22ce;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.spin-button:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Scrollbar stilleri */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #4c1d95 #1f2937;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #4c1d95;
+  border-radius: 4px;
+}
+
+/* Marker stilleri */
+.custom-marker {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.custom-marker:hover {
+  transform: scale(1.05);
+}
+
+.selected-activity {
+  background: #9333ea;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 1rem 0;
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
