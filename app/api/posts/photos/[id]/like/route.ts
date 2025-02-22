@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: Request,
@@ -30,18 +28,18 @@ export async function POST(
       );
     }
 
-    const photoId = params.id;
+    const postId = params.id;
     const userId = decodedToken.userId;
 
-    // Fotoğrafın varlığını kontrol et
-    const photo = await prisma.photo.findUnique({
-      where: { id: photoId },
+    // Gönderinin varlığını kontrol et
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
       include: { likes: true }
     });
 
-    if (!photo) {
+    if (!post) {
       return NextResponse.json(
-        { error: 'Fotoğraf bulunamadı' },
+        { error: 'Gönderi bulunamadı' },
         { status: 404 }
       );
     }
@@ -49,9 +47,9 @@ export async function POST(
     // Beğeni durumunu kontrol et
     const existingLike = await prisma.like.findUnique({
       where: {
-        photoId_userId: {
-          photoId,
+        userId_postId: {
           userId,
+          postId,
         },
       },
     });
@@ -60,9 +58,9 @@ export async function POST(
       // Beğeniyi kaldır
       await prisma.like.delete({
         where: {
-          photoId_userId: {
-            photoId,
+          userId_postId: {
             userId,
+            postId,
           },
         },
       });
@@ -72,12 +70,12 @@ export async function POST(
       // Beğeni ekle
       await prisma.like.create({
         data: {
-          photoId,
           userId,
+          postId,
         },
       });
 
-      return NextResponse.json({ message: 'Fotoğraf beğenildi' });
+      return NextResponse.json({ message: 'Gönderi beğenildi' });
     }
   } catch (error) {
     console.error('Beğeni işlemi sırasında hata:', error);
@@ -85,7 +83,5 @@ export async function POST(
       { error: 'Sunucu hatası' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 } 
